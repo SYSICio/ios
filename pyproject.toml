@@ -1,0 +1,15 @@
+[project]
+name = "heaps-ide"
+version = "0.1.0"
+description = "HEAPs IDE"
+requires-python = ">=3.9"
+
+[tool.flet]
+org = "com.SYSICio.heaps"
+product = "HEAPs"
+company = "HEAPs"
+copyright = "Copyright (C) 2024"
+
+[tool.flet.app]
+path = "."
+module = "ui_flet"

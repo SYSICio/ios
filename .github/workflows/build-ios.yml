@@ -33,9 +33,18 @@ jobs:
         run: |
           flet build ipa --verbose
 
+      - name: Find IPA
+        run: |
+          echo "===== 搜索所有 IPA 文件 ====="
+          find . -name "*.ipa" -type f
+          echo "===== 搜索所有 .app 目录 ====="
+          find . -name "*.app" -type d
+          echo "===== build 目录结构 ====="
+          ls -la build/ || echo "build 目录不存在"
+
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: heaps-ide-ipa
-          path: build/ipa/*.ipa
-          if-no-files-found: warn
+          path: '**/*.ipa'
+          if-no-files-found: error

@@ -33,18 +33,22 @@ jobs:
         run: |
           flet build ipa --verbose
 
-      - name: Find IPA
+      - name: Find outputs
         run: |
-          echo "===== 搜索所有 IPA 文件 ====="
-          find . -name "*.ipa" -type f
+          echo "===== 搜索所有 .ipa 文件 ====="
+          find . -name "*.ipa" -type f || true
           echo "===== 搜索所有 .app 目录 ====="
-          find . -name "*.app" -type d
+          find . -name "*.app" -type d || true
+          echo "===== 搜索所有 .xcarchive 目录 ====="
+          find . -name "*.xcarchive" -type d || true
           echo "===== build 目录结构 ====="
           ls -la build/ || echo "build 目录不存在"
+          echo "===== build/ipa 目录结构 ====="
+          ls -la build/ipa/ || echo "build/ipa 目录不存在"
 
-      - name: Upload IPA
+      - name: Upload xcarchive
         uses: actions/upload-artifact@v4
         with:
-          name: heaps-ide-ipa
-          path: '**/*.ipa'
+          name: heaps-ide-xcarchive
+          path: build/ipa/*.xcarchive
           if-no-files-found: error

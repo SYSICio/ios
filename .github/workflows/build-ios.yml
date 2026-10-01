@@ -1,4 +1,4 @@
-name: Build iOS IPA
+name: Build iOS Archive
 
 on:
   push:
@@ -29,27 +29,35 @@ jobs:
           python -m pip install --upgrade pip
           pip install flet
 
-      - name: Build IPA
+      - name: Build IPA (allow failure)
         continue-on-error: true
         run: |
           flet build ipa --verbose
 
-      - name: Find outputs
+      - name: Snapshot build dir before cleanup
+        if: always()
         run: |
-          echo "===== 搜索所有 .ipa 文件 ====="
-          find . -name "*.ipa" -type f || true
-          echo "===== 搜索所有 .app 目录 ====="
-          find . -name "*.app" -type d || true
-          echo "===== 搜索所有 .xcarchive 目录 ====="
+          echo "===== 当前 build 目录 ====="
+          ls -la build/ || echo "build 不存在"
+          echo "===== 搜索 xcarchive ====="
           find . -name "*.xcarchive" -type d || true
-          echo "===== build 目录结构 ====="
-          ls -la build/ || echo "build 目录不存在"
-          echo "===== build/ipa 目录结构 ====="
-          ls -la build/ipa/ || echo "build/ipa 目录不存在"
+          echo "===== 搜索 .app ====="
+          find . -name "*.app" -type d || true
+          echo "===== 搜索 .ipa ====="
+          find . -name "*.ipa" -type f || true
+
+          # 把找到的归档复制到安全位置,防止被清理
+          mkdir -p /tmp/safe_archive
+          find . -name "*.xcarchive" -type d -exec cp -R {} /tmp/safe_archive/ \; || true
+          find . -name "*.app" -type d -exec cp -R {} /tmp/safe_archive/ \; || true
+
+          echo "===== 安全目录内容 ====="
+          ls -la /tmp/safe_archive/ || echo "安全目录为空"
 
       - name: Upload xcarchive
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: heaps-ide-xcarchive
-          path: build/ipa/*.xcarchive
-          if-no-files-found: error
+          name: heaps-ide-archive
+          path: /tmp/safe_archive/
+          if-no-files-found: warn

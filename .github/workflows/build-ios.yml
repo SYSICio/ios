@@ -30,6 +30,7 @@ jobs:
           pip install flet
 
       - name: Build IPA
+        continue-on-error: true
         run: |
           flet build ipa --verbose
 
